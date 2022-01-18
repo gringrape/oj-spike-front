@@ -1,6 +1,11 @@
+import { Route, Routes } from 'react-router-dom';
+
+import ProblemPage from './ProblemPage';
+
 export default function App() {
   return (
-    <p>Hello, world!</p>
-
+    <Routes>
+      <Route path="/problem" element={<ProblemPage />} />
+    </Routes>
   );
 }
