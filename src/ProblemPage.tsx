@@ -2,10 +2,28 @@ import AceEditor from 'react-ace';
 
 import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/theme-github';
-import { useState } from 'react';
+
+import { useEffect, useState } from 'react';
+import StompJs, { Stomp } from '@stomp/stompjs';
+
+const client = Stomp.client('ws://localhost:8080/gs-guide-websocket');
 
 export default function ProblemPage() {
   const [code, setCode] = useState('');
+
+  useEffect(() => {
+    client.onConnect = (frame: IFrame) => {
+      console.log('connect!');
+      client.subscribe('/topic/greetings', (greeting) => {
+        console.log('구독 응답 완료');
+        console.log('subscribed!', greeting);
+      });
+    };
+    client.onStompError = (frame) => {
+      console.log('error');
+    };
+    client.activate();
+  }, []);
 
   const handleChange = (newValue: string) => {
     console.log('change', newValue);
@@ -14,6 +32,7 @@ export default function ProblemPage() {
 
   const handleClick = () => {
     console.log(code);
+    client.send('/app/source', {}, JSON.stringify({ source: code }));
   };
 
   return (
